@@ -4,7 +4,7 @@
   <img  src="https://i.imgur.com/st7jHTI.gif">
 </p>
 
-<p align="center">Curso sobre a linguagem C#></p>
+<p align="center">Curso sobre a linguagem C#</p>
 
 <p align="center">🚀 <b>Api criada com <b>ASP.NET Core</b> </p>
 
