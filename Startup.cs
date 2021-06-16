@@ -34,6 +34,10 @@ namespace webapicurso
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "webapicurso", Version = "v1" });
             });
 
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
+
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Data Source=myapp.db"));
         }
 
@@ -44,7 +48,8 @@ namespace webapicurso
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => {
+                app.UseSwaggerUI(c =>
+                {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "webapicurso v1");
                     c.RoutePrefix = string.Empty;
                 });
