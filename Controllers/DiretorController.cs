@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using webapicurso.DTOs;
+using webapicurso.Models;
 
 namespace webapicurso.Controllers
 {
@@ -35,8 +37,9 @@ namespace webapicurso.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Diretor>> Post([FromBody] Diretor diretor)
+        public async Task<ActionResult<Diretor>> Post([FromBody] DiretorInputDTO diretorInputDTO)
         {
+            var diretor = new Diretor(diretorInputDTO.Nome);
             if(diretor.Nome == "")
             {
                 return Conflict("Digite o nome do diretor");
@@ -45,7 +48,9 @@ namespace webapicurso.Controllers
             _context.Diretores.Add(diretor);
             await _context.SaveChangesAsync();
 
-            return Ok(diretor);
+            var diretorOutputDTO = new DiretorOutputDTO(diretor.Id, diretor.Nome);
+                
+            return Ok(diretorOutputDTO);
         }
 
         [HttpPut]
