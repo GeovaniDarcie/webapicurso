@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using webapicurso.DTOs;
+using webapicurso.DTOs.Diretor;
 using webapicurso.Models;
 
 namespace webapicurso.Controllers
@@ -37,9 +37,9 @@ namespace webapicurso.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Diretor>> Post([FromBody] DiretorInputDTO diretorInputDTO)
+        public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputPostDTO)
         {
-            var diretor = new Diretor(diretorInputDTO.Nome);
+            var diretor = new Diretor(diretorInputPostDTO.Nome);
             if(diretor.Nome == "")
             {
                 return Conflict("Digite o nome do diretor");
@@ -48,23 +48,22 @@ namespace webapicurso.Controllers
             _context.Diretores.Add(diretor);
             await _context.SaveChangesAsync();
 
-            var diretorOutputDTO = new DiretorOutputDTO(diretor.Id, diretor.Nome);
+            var diretorOutputPostDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
                 
-            return Ok(diretorOutputDTO);
+            return Ok(diretorOutputPostDTO);
         }
 
         [HttpPut]
-        public async Task<ActionResult<Diretor>> Put([FromBody] Diretor diretor)
+        public async Task<ActionResult<DiretorOutputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputPutDTO)
         {
-            if(diretor == null)
-            {
-                return Conflict("Verifique os campos!");
-            }
-
+            var diretor = new Diretor(diretorInputPutDTO.Nome);
+            diretor.Id = id;
             _context.Diretores.Update(diretor);
             await _context.SaveChangesAsync();
 
-            return Ok(diretor);
+            var diretorOutputPutDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
+    
+            return Ok(diretorOutputPutDTO);
         }
 
         [HttpDelete("{id}")]
