@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using webapicurso.Models;
+using webapicurso.DTOs.DiretorDto;
+using webapicurso.DTOs.FilmeDto;
 
 namespace webapicurso.Controllers
 {
@@ -36,16 +38,23 @@ namespace webapicurso.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Filme>> Post([FromBody] Filme filme)
+        public async Task<ActionResult<Filme>> Post([FromBody] FilmeInputPostDTO filmeInputPostDTO)
         {
-            var diretor = await _context.Diretores.FindAsync(filme.DiretorId);
+            var diretor = await _context.Diretores.FindAsync(filmeInputPostDTO.DiretorId);
 
             if(diretor == null) {
                 return Conflict("Cadastre um diretor para esse filme!");
             }
 
-            filme.Diretor = diretor;
+            
+            var filme = new Filme(
+                filmeInputPostDTO.Titulo, 
+                filmeInputPostDTO.Ano, 
+                filmeInputPostDTO.Genero, 
+                filmeInputPostDTO.DiretorId
+            );
 
+            filme.Diretor = diretor;
             _context.Filmes.Add(filme);
             await _context.SaveChangesAsync();
 

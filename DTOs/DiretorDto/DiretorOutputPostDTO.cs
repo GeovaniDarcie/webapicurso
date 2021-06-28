@@ -1,4 +1,4 @@
-namespace webapicurso.DTOs.Diretor
+namespace webapicurso.DTOs.DiretorDto
 {
     public class DiretorOutputPostDTO
     {

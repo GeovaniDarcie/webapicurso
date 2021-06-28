@@ -2,9 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using webapicurso.DTOs.Diretor;
+using webapicurso.DTOs.DiretorDto;
 using webapicurso.Models;
-
 namespace webapicurso.Controllers
 {
     [ApiController]
@@ -18,9 +17,18 @@ namespace webapicurso.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Diretor>> Get()
+        public async Task<List<DiretorOutputGetAllDTO>> Get()
         {
-            return await _context.Diretores.ToListAsync();
+            var diretores = await _context.Diretores.Include(d => d.Filmes).ToListAsync();
+            var diretoresDto = new List<DiretorOutputGetAllDTO>();
+
+            foreach (Diretor diretor in diretores)
+            {
+                var diretorDto = new DiretorOutputGetAllDTO(diretor.Id, diretor.Nome, diretor.Filmes);
+                diretoresDto.Add(diretorDto);
+            }
+
+            return diretoresDto;
         }
 
         [HttpGet("{id}")]
