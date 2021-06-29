@@ -13,11 +13,10 @@ namespace webapicurso.Models
         public long DiretorId { get; set; }
         public Diretor Diretor { get; set; }
 
-         public Filme(string titulo, string ano, string genero, long diretorId) {
+         public Filme(string titulo, string ano, string genero) {
             Titulo = titulo;
             Ano = ano;
             Genero = genero;
-            DiretorId = diretorId;
         }
     }
 }

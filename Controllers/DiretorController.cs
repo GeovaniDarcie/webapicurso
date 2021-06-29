@@ -32,16 +32,17 @@ namespace webapicurso.Controllers
         }
 
         [HttpGet("{id}")]
-        public async  Task<ActionResult<Diretor>> Get(long id)
+        public async  Task<ActionResult<DiretorOutputGetByIdDTO>> Get(long id)
         {
            var diretor = await _context.Diretores.FindAsync(id);
 
+           var outputDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome);
            if (diretor == null) 
            {
                return Conflict("Digite um Id válido!");
            }
 
-           return Ok(diretor);
+           return Ok(outputDto);
         }
 
         [HttpPost]

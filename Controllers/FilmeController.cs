@@ -19,13 +19,28 @@ namespace webapicurso.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Filme>> Get()
+        public async Task<List<FilmeOutputGetAllDTO>> Get()
         {
-            return await _context.Filmes.Include(f => f.Diretor).ToListAsync();
+            var filmes = await _context.Filmes.Include(d => d.Diretor).ToListAsync();
+            var filmesDto = new List<FilmeOutputGetAllDTO>();
+
+            foreach (Filme filme in filmes)
+            {
+                var filmeDto = new FilmeOutputGetAllDTO(
+                    filme.Titulo, 
+                    filme.Ano, 
+                    filme.Genero, 
+                    filme.Diretor.Nome
+                );
+        
+                filmesDto.Add(filmeDto);
+            }
+
+            return filmesDto;
         }
 
         [HttpGet("{id}")]
-        public async  Task<ActionResult<Filme>> Get(long id)
+        public async  Task<ActionResult<FilmeOutputGetByIdDTO>> Get(long id)
         {
            var filme = await _context.Filmes.FindAsync(id);
 
@@ -34,11 +49,18 @@ namespace webapicurso.Controllers
                return Conflict("Filme não encontrado!");
            }
 
-           return Ok(filme);
+           var filmeOutputGetByIdDTO = new FilmeOutputGetByIdDTO(
+                filme.Titulo, 
+                filme.Ano, 
+                filme.Genero, 
+                filme.Diretor.Nome
+           );
+
+           return Ok(filmeOutputGetByIdDTO);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Filme>> Post([FromBody] FilmeInputPostDTO filmeInputPostDTO)
+        public async Task<ActionResult<FilmeOutputPostDTO>> Post([FromBody] FilmeInputPostDTO filmeInputPostDTO)
         {
             var diretor = await _context.Diretores.FindAsync(filmeInputPostDTO.DiretorId);
 
@@ -46,33 +68,53 @@ namespace webapicurso.Controllers
                 return Conflict("Cadastre um diretor para esse filme!");
             }
 
-            
             var filme = new Filme(
                 filmeInputPostDTO.Titulo, 
                 filmeInputPostDTO.Ano, 
-                filmeInputPostDTO.Genero, 
-                filmeInputPostDTO.DiretorId
+                filmeInputPostDTO.Genero 
             );
 
+            filme.DiretorId = filme.Id;
             filme.Diretor = diretor;
+
             _context.Filmes.Add(filme);
             await _context.SaveChangesAsync();
 
-            return Ok(filme);
+            var filmeOutPutDto = new FilmeOutputPostDTO(
+                filme.Titulo, 
+                filme.Ano, 
+                filme.Genero, 
+                filme.Diretor.Nome
+            );
+    
+            return Ok(filmeOutPutDto);
         }
 
         [HttpPut]
-        public async Task<ActionResult<Filme>> Put([FromBody] Filme filme)
+        public async Task<ActionResult<Filme>> Put(long id, [FromBody] FilmeInputPutDTO filmeInputPutDTO)
         {
-            if(filme == null)
+            if(filmeInputPutDTO == null)
             {
                 return Conflict("Verifique os campos!");
             }
 
-            _context.Filmes.Update(filme);
-            await _context.SaveChangesAsync();
+            var filme = new Filme(
+                filmeInputPutDTO.Titulo, 
+                filmeInputPutDTO.Ano, 
+                filmeInputPutDTO.Genero
+            );
 
-            return Ok(filme);
+            _context.Filmes.Update(filme);
+
+            var filmeOutputPutDto = new FilmeOutputPutDTO(
+                filme.Titulo, 
+                filme.Ano, 
+                filme.Genero, 
+                filme.Diretor.Nome
+            );
+
+            await _context.SaveChangesAsync();
+            return Ok(filmeOutputPutDto);
         }
 
         [HttpDelete("{id}")]
