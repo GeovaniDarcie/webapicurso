@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using webapicurso.Models;
 using webapicurso.DTOs.DiretorDto;
 using webapicurso.DTOs.FilmeDto;
+using System;
 
 namespace webapicurso.Controllers
 {
@@ -62,7 +63,7 @@ namespace webapicurso.Controllers
 
                 if (filme == null)
                 {
-                    return Conflict("Filme não encontrado!");
+                    return NotFound("Filme não encontrado!");
                 }
 
                 var filmeOutputGetByIdDTO = new FilmeOutputGetByIdDTO(
@@ -90,7 +91,7 @@ namespace webapicurso.Controllers
 
                 if (diretor == null)
                 {
-                    return Conflict("Cadastre um diretor válido para esse filme!");
+                    return NotFound("Cadastre um diretor válido para esse filme!");
                 }
 
                 var filme = new Filme(
@@ -127,11 +128,11 @@ namespace webapicurso.Controllers
         {
             try
             {
-                var filme = await _context.Filmes.FindAsync(id);
+                var filmeDb = await _context.Filmes.FindAsync(id);
 
-                if (filme == null)
+                if (filmeDb == null)
                 {
-                    return Conflict("Filme não encontrado");
+                    return NotFound("Filme não encontrado");
                 }
 
                 var filme = new Filme(
@@ -169,7 +170,7 @@ namespace webapicurso.Controllers
 
                 if (filme == null)
                 {
-                    return Conflict("Filme não encontrado");
+                    return NotFound("Filme não encontrado");
                 }
 
                 _context.Filmes.Remove(filme);

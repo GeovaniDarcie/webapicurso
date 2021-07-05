@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using webapicurso.DTOs.DiretorDto;
 using webapicurso.Models;
+using System;
+
 namespace webapicurso.Controllers
 {
     [ApiController]
@@ -25,7 +27,7 @@ namespace webapicurso.Controllers
 
                 if (diretores.Count == 0)
                 {
-                    return Conflict("Diretores não encontrados");
+                    return NotFound("Diretores não encontrados");
                 }
 
                 var diretoresDto = new List<DiretorOutputGetAllDTO>();
@@ -54,7 +56,7 @@ namespace webapicurso.Controllers
 
                 if (diretor == null)
                 {
-                    return Conflict("Diretor não encontrado");
+                    return NotFound("Diretor não encontrado");
                 }
 
                 var outputDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome);
@@ -97,10 +99,10 @@ namespace webapicurso.Controllers
         {
             try
             {
-                var diretor = await _context.Diretores.FindAsync(id);
-                if (diretor == null)
+                var diretorDb = await _context.Diretores.FindAsync(id);
+                if (diretorDb == null)
                 {
-                    return Conflict("Diretor não encontrado");
+                    return NotFound("Diretor não encontrado");
                 }
 
                 var diretor = new Diretor(diretorInputPutDTO.Nome);
@@ -128,7 +130,7 @@ namespace webapicurso.Controllers
 
                 if (diretor == null)
                 {
-                    return Conflict("Diretor não encontrado");
+                    return NotFound("Diretor não encontrado");
                 }
 
                 _context.Diretores.Remove(diretor);
