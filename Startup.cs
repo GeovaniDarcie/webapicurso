@@ -61,6 +61,8 @@ namespace webapicurso
 
             app.UseAuthorization();
 
+            app.UseMiddleware(typeof(ErrorHandlingMiddelware));
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

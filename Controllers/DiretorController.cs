@@ -21,127 +21,89 @@ namespace webapicurso.Controllers
         [HttpGet]
         public async Task<ActionResult<List<DiretorOutputGetAllDTO>>> Get()
         {
-            try
+            var diretores = await _context.Diretores.Include(d => d.Filmes).ToListAsync();
+
+            if (diretores.Count == 0)
             {
-                var diretores = await _context.Diretores.Include(d => d.Filmes).ToListAsync();
-
-                if (diretores.Count == 0)
-                {
-                    return NotFound("Diretores não encontrados");
-                }
-
-                var diretoresDto = new List<DiretorOutputGetAllDTO>();
-
-                foreach (Diretor diretor in diretores)
-                {
-                    var diretorDto = new DiretorOutputGetAllDTO(diretor.Id, diretor.Nome, diretor.Filmes);
-                    diretoresDto.Add(diretorDto);
-                }
-
-                return diretoresDto;
-            }
-            catch (Exception ex)
-            {
-                return Conflict(ex.Message);
+                return NotFound("Diretores não encontrados");
             }
 
+            var diretoresDto = new List<DiretorOutputGetAllDTO>();
+
+            foreach (Diretor diretor in diretores)
+            {
+                var diretorDto = new DiretorOutputGetAllDTO(diretor.Id, diretor.Nome, diretor.Filmes);
+                diretoresDto.Add(diretorDto);
+            }
+
+            return diretoresDto;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<DiretorOutputGetByIdDTO>> Get(long id)
         {
-            try
+            var diretor = await _context.Diretores.FindAsync(id);
+
+            if (diretor == null)
             {
-                var diretor = await _context.Diretores.FindAsync(id);
-
-                if (diretor == null)
-                {
-                    return NotFound("Diretor não encontrado");
-                }
-
-                var outputDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome);
-
-                return Ok(outputDto);
+                return NotFound("Diretor não encontrado");
             }
-            catch (Exception ex)
-            {
-                return Conflict(ex.Message);
-            }
+
+            var outputDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome);
+
+            return Ok(outputDto);
         }
 
         [HttpPost]
         public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputPostDTO)
         {
-            try
+            var diretor = new Diretor(diretorInputPostDTO.Nome);
+            if (diretor.Nome == "")
             {
-                var diretor = new Diretor(diretorInputPostDTO.Nome);
-                if (diretor.Nome == "")
-                {
-                    return Conflict("Digite o nome do diretor");
-                }
-
-                _context.Diretores.Add(diretor);
-                await _context.SaveChangesAsync();
-
-                var diretorOutputPostDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
-
-                return Ok(diretorOutputPostDTO);
-            }
-            catch (Exception ex)
-            {
-                return Conflict(ex.Message);
+                return Conflict("Digite o nome do diretor");
             }
 
+            _context.Diretores.Add(diretor);
+            await _context.SaveChangesAsync();
+
+            var diretorOutputPostDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
+
+            return Ok(diretorOutputPostDTO);
         }
 
         [HttpPut]
         public async Task<ActionResult<DiretorOutputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputPutDTO)
         {
-            try
+            var diretorDb = await _context.Diretores.FindAsync(id);
+            if (diretorDb == null)
             {
-                var diretorDb = await _context.Diretores.FindAsync(id);
-                if (diretorDb == null)
-                {
-                    return NotFound("Diretor não encontrado");
-                }
-
-                var diretor = new Diretor(diretorInputPutDTO.Nome);
-                diretor.Id = id;
-                _context.Diretores.Update(diretor);
-                await _context.SaveChangesAsync();
-
-                var diretorOutputPutDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
-
-                return Ok(diretorOutputPutDTO);
-            }
-            catch (Exception ex)
-            {
-                return Conflict(ex.Message);
+                return NotFound("Diretor não encontrado");
             }
 
+            var diretor = new Diretor(diretorInputPutDTO.Nome);
+            diretor.Id = id;
+            _context.Diretores.Update(diretor);
+            await _context.SaveChangesAsync();
+
+            var diretorOutputPutDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
+
+            return Ok(diretorOutputPutDTO);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Diretor>> Delete(long id)
         {
-            try
+            var diretor = await _context.Diretores.FindAsync(id);
+
+            if (diretor == null)
             {
-                var diretor = await _context.Diretores.FindAsync(id);
-
-                if (diretor == null)
-                {
-                    return NotFound("Diretor não encontrado");
-                }
-
-                _context.Diretores.Remove(diretor);
-                await _context.SaveChangesAsync();
-
-                return Ok(diretor);
+                return NotFound("Diretor não encontrado");
             }
-            catch (Exception ex)
-            {
-                return Conflict(ex.Message);
-            }
+
+            _context.Diretores.Remove(diretor);
+            await _context.SaveChangesAsync();
+
+            return Ok(diretor);
         }
     }
 }
