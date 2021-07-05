@@ -19,113 +19,169 @@ namespace webapicurso.Controllers
         }
 
         [HttpGet]
-        public async Task<List<FilmeOutputGetAllDTO>> Get()
+        public async Task<ActionResult<List<FilmeOutputGetAllDTO>>> Get()
         {
-            var filmes = await _context.Filmes.Include(d => d.Diretor).ToListAsync();
-            var filmesDto = new List<FilmeOutputGetAllDTO>();
-
-            foreach (Filme filme in filmes)
+            try
             {
-                var filmeDto = new FilmeOutputGetAllDTO(
-                    filme.Titulo, 
-                    filme.Ano, 
-                    filme.Genero, 
-                    filme.Diretor.Nome
-                );
-        
-                filmesDto.Add(filmeDto);
-            }
+                var filmes = await _context.Filmes.Include(d => d.Diretor).ToListAsync();
+                var filmesDto = new List<FilmeOutputGetAllDTO>();
 
-            return filmesDto;
+
+                if (filmes.Count == 0)
+                {
+                    return Conflict("Filmes não encontrados");
+                }
+
+                foreach (Filme filme in filmes)
+                {
+                    var filmeDto = new FilmeOutputGetAllDTO(
+                        filme.Id,
+                        filme.Titulo,
+                        filme.Ano,
+                        filme.Genero,
+                        filme.Diretor.Nome
+                    );
+
+                    filmesDto.Add(filmeDto);
+                }
+
+                return filmesDto;
+            }
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
-        public async  Task<ActionResult<FilmeOutputGetByIdDTO>> Get(long id)
+        public async Task<ActionResult<FilmeOutputGetByIdDTO>> Get(long id)
         {
-           var filme = await _context.Filmes.FindAsync(id);
+            try
+            {
+                var filme = await _context.Filmes.FindAsync(id);
 
-           if (filme == null) 
-           {
-               return Conflict("Filme não encontrado!");
-           }
+                if (filme == null)
+                {
+                    return Conflict("Filme não encontrado!");
+                }
 
-           var filmeOutputGetByIdDTO = new FilmeOutputGetByIdDTO(
-                filme.Titulo, 
-                filme.Ano, 
-                filme.Genero, 
-                filme.Diretor.Nome
-           );
+                var filmeOutputGetByIdDTO = new FilmeOutputGetByIdDTO(
+                     filme.Titulo,
+                     filme.Ano,
+                     filme.Genero,
+                     filme.Diretor.Nome
+                );
 
-           return Ok(filmeOutputGetByIdDTO);
+                return Ok(filmeOutputGetByIdDTO);
+            }
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
+            }
+
         }
 
         [HttpPost]
         public async Task<ActionResult<FilmeOutputPostDTO>> Post([FromBody] FilmeInputPostDTO filmeInputPostDTO)
         {
-            var diretor = await _context.Diretores.FindAsync(filmeInputPostDTO.DiretorId);
+            try
+            {
+                var diretor = await _context.Diretores.FindAsync(filmeInputPostDTO.DiretorId);
 
-            if(diretor == null) {
-                return Conflict("Cadastre um diretor para esse filme!");
+                if (diretor == null)
+                {
+                    return Conflict("Cadastre um diretor válido para esse filme!");
+                }
+
+                var filme = new Filme(
+                    filmeInputPostDTO.Titulo,
+                    filmeInputPostDTO.Ano,
+                    filmeInputPostDTO.Genero
+                );
+
+                filme.DiretorId = filmeInputPostDTO.DiretorId;
+                filme.Diretor = diretor;
+
+                _context.Filmes.Add(filme);
+                await _context.SaveChangesAsync();
+
+                var filmeOutPutDto = new FilmeOutputPostDTO(
+                    filme.Id,
+                    filme.Titulo,
+                    filme.Ano,
+                    filme.Genero,
+                    filme.Diretor.Nome
+                );
+
+                return Ok(filmeOutPutDto);
+            }
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
             }
 
-            var filme = new Filme(
-                filmeInputPostDTO.Titulo, 
-                filmeInputPostDTO.Ano, 
-                filmeInputPostDTO.Genero 
-            );
-
-            filme.DiretorId = filme.Id;
-            filme.Diretor = diretor;
-
-            _context.Filmes.Add(filme);
-            await _context.SaveChangesAsync();
-
-            var filmeOutPutDto = new FilmeOutputPostDTO(
-                filme.Titulo, 
-                filme.Ano, 
-                filme.Genero, 
-                filme.Diretor.Nome
-            );
-    
-            return Ok(filmeOutPutDto);
         }
 
         [HttpPut]
         public async Task<ActionResult<Filme>> Put(long id, [FromBody] FilmeInputPutDTO filmeInputPutDTO)
         {
-            if(filmeInputPutDTO == null)
+            try
             {
-                return Conflict("Verifique os campos!");
+                var filme = await _context.Filmes.FindAsync(id);
+
+                if (filme == null)
+                {
+                    return Conflict("Filme não encontrado");
+                }
+
+                var filme = new Filme(
+                    filmeInputPutDTO.Titulo,
+                    filmeInputPutDTO.Ano,
+                    filmeInputPutDTO.Genero
+                );
+
+                filme.Id = id;
+
+                _context.Filmes.Update(filme);
+
+                var filmeOutputPutDto = new FilmeOutputPutDTO(
+                    filme.Titulo,
+                    filme.Ano,
+                    filme.Genero,
+                    filme.Diretor.Nome
+                );
+
+                await _context.SaveChangesAsync();
+                return Ok(filmeOutputPutDto);
             }
-
-            var filme = new Filme(
-                filmeInputPutDTO.Titulo, 
-                filmeInputPutDTO.Ano, 
-                filmeInputPutDTO.Genero
-            );
-
-            _context.Filmes.Update(filme);
-
-            var filmeOutputPutDto = new FilmeOutputPutDTO(
-                filme.Titulo, 
-                filme.Ano, 
-                filme.Genero, 
-                filme.Diretor.Nome
-            );
-
-            await _context.SaveChangesAsync();
-            return Ok(filmeOutputPutDto);
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Filme>> Delete(long id)
         {
-            var filme = await _context.Filmes.FindAsync(id);
+            try
+            {
+                var filme = await _context.Filmes.FindAsync(id);
 
-            _context.Filmes.Remove(filme);
-            await _context.SaveChangesAsync();
+                if (filme == null)
+                {
+                    return Conflict("Filme não encontrado");
+                }
 
-            return Ok(filme);
+                _context.Filmes.Remove(filme);
+                await _context.SaveChangesAsync();
+
+                return Ok(filme);
+            }
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
+            }
+
         }
     }
 }
