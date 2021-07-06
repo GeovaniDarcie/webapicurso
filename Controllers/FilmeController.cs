@@ -51,7 +51,6 @@ namespace webapicurso.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<FilmeOutputGetByIdDTO>> Get(long id)
         {
-
             var filme = await _context.Filmes.FindAsync(id);
 
             if (filme == null)
