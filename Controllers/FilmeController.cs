@@ -19,6 +19,13 @@ namespace webapicurso.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Lista todos os filmes
+        /// </summary>
+        /// <returns>Filmes listados</returns>
+        /// <response code="200">Lista de filmes retornada com sucesso</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
+
         [HttpGet]
         public async Task<ActionResult<List<FilmeOutputGetAllDTO>>> Get()
         {
@@ -48,6 +55,15 @@ namespace webapicurso.Controllers
             return filmesDto;
         }
 
+        
+        /// <summary>
+        /// Busca um filme
+        /// </summary>
+        /// <returns>Filme buscado com sucesso</returns>
+        /// <param name="titulo">Titulo do filme</param>
+        /// <response code="200">Busca um filme</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
+    
         [HttpGet("{id}")]
         public async Task<ActionResult<FilmeOutputGetByIdDTO>> Get(long id)
         {
@@ -68,6 +84,31 @@ namespace webapicurso.Controllers
             return Ok(filmeOutputGetByIdDTO);
 
         }
+
+        /// <summary>
+        /// Cria um filme
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /filme
+        ///     {
+        ///        "titulo": "Tropa de Elite",
+        ///        "ano": "2010",
+        ///        "genero": "acao",
+        ///        "diretorId": 1
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="nome">Titulo do filme</param>
+        /// <param name="ano">Ano do filme</param>
+        /// <param name="genero">Gênero do filme</param>
+        /// <param name="diretor">Diretor do filme</param>
+        /// <returns>O filme foi criado</returns>
+        /// <response code="200">Filme foi criado com sucesso</response>
+        /// <response code="400">Requisição sem corpo</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
+
 
         [HttpPost]
         public async Task<ActionResult<FilmeOutputPostDTO>> Post([FromBody] FilmeInputPostDTO filmeInputPostDTO)
@@ -104,6 +145,27 @@ namespace webapicurso.Controllers
 
         }
 
+        /// <summary>
+        /// Edita um filme
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /filme
+        ///     {
+        ///        "titulo": "Tropa de Elite",
+        ///        "ano": "2010",
+        ///        "genero": "acao",
+        ///     }
+        /// </remarks>
+        /// <param name="nome">Titulo do filme</param>
+        /// <param name="ano">Ano do filme</param>
+        /// <param name="genero">Gênero do filme</param>
+        /// <returns>O Filme foi atualizado</returns>
+        /// <response code="200">Filme foi atualizado com sucesso</response>
+        /// <response code="400">Requisição sem corpo</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
+
         [HttpPut]
         public async Task<ActionResult<Filme>> Put(long id, [FromBody] FilmeInputPutDTO filmeInputPutDTO)
         {
@@ -135,6 +197,14 @@ namespace webapicurso.Controllers
             await _context.SaveChangesAsync();
             return Ok(filmeOutputPutDto);
         }
+
+        /// <summary>
+        /// Deleta um filme
+        /// </summary>
+        /// <returns>Delete um filme</returns>
+        /// <param name="filmeId">Id do filme</param>
+        /// <response code="200">Filme excluído com sucesso</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Filme>> Delete(long id)

@@ -18,6 +18,15 @@ namespace webapicurso.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Lista todos os diretores
+        /// </summary>
+        /// <param name="nome">Nome do diretor</param>
+        /// <returns>Lista dos diretores</returns>
+        /// <response code="200">Sucesso ao retornar um diretor</response>
+        /// <response code="404">Não existem diretores cadastrados</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
+
         [HttpGet]
         public async Task<ActionResult<List<DiretorOutputGetAllDTO>>> Get()
         {
@@ -39,6 +48,15 @@ namespace webapicurso.Controllers
             return diretoresDto;
         }
 
+        /// <summary>
+        /// Busca um diretor
+        /// </summary>
+        /// <param name="nome">Id do diretor</param>
+        /// <returns>Lista dos diretores</returns>
+        /// <response code="200">Sucesso ao retornar a lista dos diretores</response>
+        /// <response code="404">Não existem diretores cadastrados</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
+
         [HttpGet("{id}")]
         public async Task<ActionResult<DiretorOutputGetByIdDTO>> Get(long id)
         {
@@ -53,6 +71,24 @@ namespace webapicurso.Controllers
 
             return Ok(outputDto);
         }
+
+        /// <summary>
+        /// Cria um diretor
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /diretor
+        ///     {
+        ///        "nome": "Martin Scorsese",
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="nome">Nome do diretor</param>
+        /// <returns>O diretor criado</returns>
+        /// <response code="200">Diretor foi criado com sucesso</response>
+        /// <response code="400">Requisição sem corpo</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
 
         [HttpPost]
         public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputPostDTO)
@@ -71,6 +107,25 @@ namespace webapicurso.Controllers
             return Ok(diretorOutputPostDTO);
         }
 
+         /// <summary>
+        /// Modificia os dados de um diretor
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /diretor
+        ///     {
+        ///        "nome": "Martin Scorsese",
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="diretorId">Id do diretor</param>
+        /// <param name="nome">Nome do diretor</param>
+        /// <returns>O diretor foi atualizado com sucesso</returns>
+        /// <response code="200">Diretor foi atualizado</response>
+        /// <response code="400">Requisição sem corpo</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
+    
         [HttpPut]
         public async Task<ActionResult<DiretorOutputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputPutDTO)
         {
@@ -90,6 +145,15 @@ namespace webapicurso.Controllers
             return Ok(diretorOutputPutDTO);
         }
 
+        /// <summary>
+        /// Deleta um diretor
+        /// </summary>
+        /// <param name="diretorId">Id do diretor</param>
+        /// <returns>Diretor deletado</returns>
+        /// <response code="200">Diretor deletado com sucesso</response>
+        /// <response code="404">Não existem diretores cadastrados para excluir</response>
+        /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
+    
         [HttpDelete("{id}")]
         public async Task<ActionResult<Diretor>> Delete(long id)
         {
