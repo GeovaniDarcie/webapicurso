@@ -13,7 +13,8 @@ namespace webapicurso.Controllers
     public class DiretorController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        public DiretorController(ApplicationDbContext context)
+        private readonly DiretorService _diretorService;
+        public DiretorController(ApplicationDbContext context, DiretorService diretorService)
         {
             _context = context;
         }
@@ -29,12 +30,7 @@ namespace webapicurso.Controllers
         [HttpGet]
         public async Task<ActionResult<List<DiretorOutputGetAllDTO>>> Get()
         {
-            var diretores = await _context.Diretores.Include(d => d.Filmes).ToListAsync();
-
-            if (diretores.Count == 0)
-            {
-                return NotFound("Diretores não encontrados");
-            }
+            var diretores = await _diretorService.GetAll();
 
             var diretoresDto = new List<DiretorOutputGetAllDTO>();
 
