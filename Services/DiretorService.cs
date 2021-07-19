@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System;
 
-public class DiretorService
+public class DiretorService : IDiretorService
 {
     private readonly ApplicationDbContext _context;
     public DiretorService(ApplicationDbContext context)

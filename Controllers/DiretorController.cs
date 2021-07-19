@@ -13,8 +13,8 @@ namespace webapicurso.Controllers
     public class DiretorController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly DiretorService _diretorService;
-        public DiretorController(ApplicationDbContext context, DiretorService diretorService)
+        private readonly IDiretorService _diretorService;
+        public DiretorController(ApplicationDbContext context, IDiretorService diretorService)
         {
             _context = context;
         }
