@@ -17,6 +17,7 @@ namespace webapicurso.Controllers
         public DiretorController(ApplicationDbContext context, IDiretorService diretorService)
         {
             _context = context;
+            _diretorService = diretorService;
         }
 
         /// <summary>
@@ -57,11 +58,6 @@ namespace webapicurso.Controllers
         {
             var diretor = await _context.Diretores.FindAsync(id);
 
-            if (diretor == null)
-            {
-                return NotFound("Diretor não encontrado");
-            }
-
             var outputDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome);
 
             return Ok(outputDto);
@@ -88,15 +84,7 @@ namespace webapicurso.Controllers
         [HttpPost]
         public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputPostDTO)
         {
-            var diretor = new Diretor(diretorInputPostDTO.Nome);
-            if (diretor.Nome == "")
-            {
-                return Conflict("Digite o nome do diretor");
-            }
-
-            _context.Diretores.Add(diretor);
-            await _context.SaveChangesAsync();
-
+            var diretor = await _diretorService.CriaDiretor(diretorInputPostDTO);
             var diretorOutputPostDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
 
             return Ok(diretorOutputPostDTO);
@@ -124,16 +112,7 @@ namespace webapicurso.Controllers
         [HttpPut]
         public async Task<ActionResult<DiretorOutputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputPutDTO)
         {
-            var diretorDb = await _context.Diretores.FindAsync(id);
-            if (diretorDb == null)
-            {
-                return NotFound("Diretor não encontrado");
-            }
-
-            var diretor = new Diretor(diretorInputPutDTO.Nome);
-            diretor.Id = id;
-            _context.Diretores.Update(diretor);
-            await _context.SaveChangesAsync();
+            var diretor = await _diretorService.AtualizaDiretor(id, diretorInputPutDTO);
 
             var diretorOutputPutDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
 
@@ -152,15 +131,7 @@ namespace webapicurso.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Diretor>> Delete(long id)
         {
-            var diretor = await _context.Diretores.FindAsync(id);
-
-            if (diretor == null)
-            {
-                return NotFound("Diretor não encontrado");
-            }
-
-            _context.Diretores.Remove(diretor);
-            await _context.SaveChangesAsync();
+            var diretor = await _diretorService.ExcluiDiretor(id);
 
             return Ok(diretor);
         }
