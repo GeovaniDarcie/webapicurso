@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using webapicurso.DTOs.DiretorDto;
 using webapicurso.Models;
 using System;
+using webapicurso.Services.DiretorService;
 
 namespace webapicurso.Controllers
 {
@@ -13,9 +14,11 @@ namespace webapicurso.Controllers
     public class DiretorController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        public DiretorController(ApplicationDbContext context)
+        private readonly IDiretorService _diretorService;
+        public DiretorController(ApplicationDbContext context, IDiretorService diretorService)
         {
             _context = context;
+            _diretorService = diretorService;
         }
 
         /// <summary>
@@ -29,22 +32,9 @@ namespace webapicurso.Controllers
         [HttpGet]
         public async Task<ActionResult<List<DiretorOutputGetAllDTO>>> Get()
         {
-            var diretores = await _context.Diretores.Include(d => d.Filmes).ToListAsync();
+            var diretores = await _diretorService.GetAll();
 
-            if (diretores.Count == 0)
-            {
-                return NotFound("Diretores não encontrados");
-            }
-
-            var diretoresDto = new List<DiretorOutputGetAllDTO>();
-
-            foreach (Diretor diretor in diretores)
-            {
-                var diretorDto = new DiretorOutputGetAllDTO(diretor.Id, diretor.Nome, diretor.Filmes);
-                diretoresDto.Add(diretorDto);
-            }
-
-            return diretoresDto;
+            return Ok(diretores);
         }
 
         /// <summary>
@@ -59,16 +49,13 @@ namespace webapicurso.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DiretorOutputGetByIdDTO>> Get(long id)
         {
-            var diretor = await _context.Diretores.FindAsync(id);
+            var diretor = await _diretorService.GetById(id);
 
-            if (diretor == null)
-            {
-                return NotFound("Diretor não encontrado");
+            if (diretor == null) {
+               return NotFound("Diretor não encontrado");
             }
 
-            var outputDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome);
-
-            return Ok(outputDto);
+            return Ok(diretor);
         }
 
         /// <summary>
@@ -92,16 +79,7 @@ namespace webapicurso.Controllers
         [HttpPost]
         public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputPostDTO)
         {
-            var diretor = new Diretor(diretorInputPostDTO.Nome);
-            if (diretor.Nome == "")
-            {
-                return Conflict("Digite o nome do diretor");
-            }
-
-            _context.Diretores.Add(diretor);
-            await _context.SaveChangesAsync();
-
-            var diretorOutputPostDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
+            var diretorOutputPostDTO = await _diretorService.Post(diretorInputPostDTO);
 
             return Ok(diretorOutputPostDTO);
         }
@@ -128,20 +106,13 @@ namespace webapicurso.Controllers
         [HttpPut]
         public async Task<ActionResult<DiretorOutputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputPutDTO)
         {
-            var diretorDb = await _context.Diretores.FindAsync(id);
-            if (diretorDb == null)
+            var diretor = await _diretorService.Put(id, diretorInputPutDTO);
+            if (diretor == null)
             {
                 return NotFound("Diretor não encontrado");
             }
 
-            var diretor = new Diretor(diretorInputPutDTO.Nome);
-            diretor.Id = id;
-            _context.Diretores.Update(diretor);
-            await _context.SaveChangesAsync();
-
-            var diretorOutputPutDTO = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
-
-            return Ok(diretorOutputPutDTO);
+            return Ok(diretor);
         }
 
         /// <summary>

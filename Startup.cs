@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.IO;
 using FluentValidation.AspNetCore;
+using webapicurso.Services.DiretorService;
 
 namespace webapicurso
 {
@@ -47,6 +48,8 @@ namespace webapicurso
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
+
+            services.AddScoped<IDiretorService, DiretorService>();
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Data Source=myapp.db"));
         }
