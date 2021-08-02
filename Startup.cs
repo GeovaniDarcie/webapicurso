@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.IO;
 using FluentValidation.AspNetCore;
-using webapicurso.Services.DiretorService;
+using webapicurso.Services.FilmesServices; 
 
 namespace webapicurso
 {
@@ -49,10 +49,9 @@ namespace webapicurso
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
 
-            services.AddScoped<IDiretorService, DiretorService>();
-
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Data Source=myapp.db"));
             services.AddScoped<IDiretorService, DiretorService>();
+            services.AddScoped<IFilmeService, FilmeService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

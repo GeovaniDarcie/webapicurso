@@ -6,6 +6,7 @@ using webapicurso.Models;
 using webapicurso.DTOs.DiretorDto;
 using webapicurso.DTOs.FilmeDto;
 using System;
+using webapicurso.Services.FilmesServices;
 
 namespace webapicurso.Controllers
 {
@@ -13,10 +14,10 @@ namespace webapicurso.Controllers
     [Route("[controller]")]
     public class FilmeController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        public FilmeController(ApplicationDbContext context)
+        private readonly IFilmeService _filmeService;
+        public FilmeController(IFilmeService filmeService)
         {
-            _context = context;
+            _filmeService = filmeService;
         }
 
         /// <summary>
@@ -29,30 +30,8 @@ namespace webapicurso.Controllers
         [HttpGet]
         public async Task<ActionResult<List<FilmeOutputGetAllDTO>>> Get()
         {
-
-            var filmes = await _context.Filmes.Include(d => d.Diretor).ToListAsync();
-            var filmesDto = new List<FilmeOutputGetAllDTO>();
-
-
-            if (filmes.Count == 0)
-            {
-                return Conflict("Filmes não encontrados");
-            }
-
-            foreach (Filme filme in filmes)
-            {
-                var filmeDto = new FilmeOutputGetAllDTO(
-                    filme.Id,
-                    filme.Titulo,
-                    filme.Ano,
-                    filme.Genero,
-                    filme.Diretor.Nome
-                );
-
-                filmesDto.Add(filmeDto);
-            }
-
-            return filmesDto;
+           var filmesDto = await _filmeService.GetAll();
+           return filmesDto;
         }
 
 
@@ -67,22 +46,8 @@ namespace webapicurso.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<FilmeOutputGetByIdDTO>> Get(long id)
         {
-            var filme = await _context.Filmes.FindAsync(id);
-
-            if (filme == null)
-            {
-                return NotFound("Filme não encontrado!");
-            }
-
-            var filmeOutputGetByIdDTO = new FilmeOutputGetByIdDTO(
-                 filme.Titulo,
-                 filme.Ano,
-                 filme.Genero,
-                 filme.Diretor.Nome
-            );
-
+            var filmeOutputGetByIdDTO = await _filmeService.GetById(id);
             return Ok(filmeOutputGetByIdDTO);
-
         }
 
         /// <summary>
@@ -110,36 +75,8 @@ namespace webapicurso.Controllers
         [HttpPost]
         public async Task<ActionResult<FilmeOutputPostDTO>> Post([FromBody] FilmeInputPostDTO filmeInputPostDTO)
         {
-
-            var diretor = await _context.Diretores.FindAsync(filmeInputPostDTO.DiretorId);
-
-            if (diretor == null)
-            {
-                return NotFound("Cadastre um diretor válido para esse filme!");
-            }
-
-            var filme = new Filme(
-                filmeInputPostDTO.Titulo,
-                filmeInputPostDTO.Ano,
-                filmeInputPostDTO.Genero
-            );
-
-            filme.DiretorId = filmeInputPostDTO.DiretorId;
-            filme.Diretor = diretor;
-
-            _context.Filmes.Add(filme);
-            await _context.SaveChangesAsync();
-
-            var filmeOutPutDto = new FilmeOutputPostDTO(
-                filme.Id,
-                filme.Titulo,
-                filme.Ano,
-                filme.Genero,
-                filme.Diretor.Nome
-            );
-
-            return Ok(filmeOutPutDto);
-
+            var filmeOutputGetByIdDTO = await _filmeService.CriaFilme(filmeInputPostDTO);
+            return Ok(filmeOutputGetByIdDTO);
         }
 
         /// <summary>
@@ -163,34 +100,9 @@ namespace webapicurso.Controllers
         /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
 
         [HttpPut]
-        public async Task<ActionResult<Filme>> Put(long id, [FromBody] FilmeInputPutDTO filmeInputPutDTO)
+        public async Task<ActionResult<FilmeOutputPutDTO>> Put(long id, [FromBody] FilmeInputPutDTO filmeInputPutDTO)
         {
-
-            var filmeDb = await _context.Filmes.FindAsync(id);
-
-            if (filmeDb == null)
-            {
-                return NotFound("Filme não encontrado");
-            }
-
-            var filme = new Filme(
-                filmeInputPutDTO.Titulo,
-                filmeInputPutDTO.Ano,
-                filmeInputPutDTO.Genero
-            );
-
-            filme.Id = id;
-
-            _context.Filmes.Update(filme);
-
-            var filmeOutputPutDto = new FilmeOutputPutDTO(
-                filme.Titulo,
-                filme.Ano,
-                filme.Genero,
-                filme.Diretor.Nome
-            );
-
-            await _context.SaveChangesAsync();
+            var filmeOutputPutDto = await _filmeService.AtualizaFilme(id, filmeInputPutDTO);
             return Ok(filmeOutputPutDto);
         }
 
@@ -206,15 +118,7 @@ namespace webapicurso.Controllers
         public async Task<ActionResult<Filme>> Delete(long id)
         {
 
-            var filme = await _context.Filmes.FindAsync(id);
-
-            if (filme == null)
-            {
-                return NotFound("Filme não encontrado");
-            }
-
-            _context.Filmes.Remove(filme);
-            await _context.SaveChangesAsync();
+            var filme = await _filmeService.ExcluiFilme(id);
 
             return Ok(filme);
 

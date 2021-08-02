@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using webapicurso.DTOs.DiretorDto;
 using webapicurso.Models;
 using System;
-using webapicurso.Services.DiretorService;
 
 namespace webapicurso.Controllers
 {
