@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using webapicurso.DTOs.DiretorDto;
 using webapicurso.Models;
+using Microsoft.AspNetCore.Authorization;
 using System;
 
 namespace webapicurso.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class DiretorController : ControllerBase
